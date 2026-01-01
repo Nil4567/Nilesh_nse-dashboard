@@ -5,23 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NSE Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #dashboard { margin-top: 20px; }
-    .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; width: 250px; }
-    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    header img {
+      height: 50px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      flex-grow: 1;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .amount {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .share-btn {
+      background-color: #28a745;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>NSE Dashboard</h1>
-  <button id="refreshBtn">Refresh Data</button>
+  <header>
+    <img src="logo.png" alt="Logo">
+    <h1>NSE Dashboard</h1>
+    <button id="refreshBtn">Refresh Data</button>
+  </header>
 
   <div id="dashboard">
-    <div class="card">Total Amount: ₹<span id="totalAmount">0.00</span></div>
-    <div class="card">Advance Paid: ₹<span id="advancePaid">0.00</span></div>
-    <div class="card">Pending Received: ₹<span id="pendingReceived">0.00</span></div>
-    <div class="card">Total Received: ₹<span id="totalReceived">0.00</span></div>
-    <div class="card">Pending Balance: ₹<span id="pendingBalance">0.00</span></div>
+    <div class="card">
+      Total Amount
+      <div class="amount" id="totalAmount">₹0.00</div>
+      <button class="share-btn">Share</button>
+    </div>
+    <div class="card">
+      Advance Paid
+      <div class="amount" id="advancePaid">₹0.00</div>
+      <button class="share-btn">Share</button>
+    </div>
+    <div class="card">
+      Pending Received
+      <div class="amount" id="pendingReceived">₹0.00</div>
+      <button class="share-btn">Share</button>
+    </div>
+    <div class="card">
+      Total Received
+      <div class="amount" id="totalReceived">₹0.00</div>
+      <button class="share-btn">Share</button>
+    </div>
+    <div class="card">
+      Pending Balance
+      <div class="amount" id="pendingBalance">₹0.00</div>
+      <button class="share-btn">Share</button>
+    </div>
   </div>
 
   <script src="dashboard.js"></script>

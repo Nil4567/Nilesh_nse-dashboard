@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSE ETF Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <h1>NSE ETF Dashboard</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Name</th>
+        <th>Last Price</th>
+        <th>Change</th>
+        <th>% Change</th>
+      </tr>
+    </thead>
+    <tbody id="etfTableBody"></tbody>
+  </table>
+
+  <script>
+    async function loadETFData() {
+      try {
+        const response = await fetch('/api/nse');
+        const data = await response.json();
+
+        const tableBody = document.getElementById('etfTableBody');
+        tableBody.innerHTML = '';
+
+        data.forEach(etf => {
+          const row = document.createElement('tr');
+
+          row.innerHTML = `
+            <td>${etf.symbol}</td>
+            <td>${etf.name}</td>
+            <td style="color:${etf.gainLossColor}">${etf.lastPrice}</td>
+            <td style="color:${etf.gainLossColor}">${etf.change}</td>
+            <td style="color:${etf.gainLossColor}">${etf.pChange}%</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Error loading ETF data:', err);
+      }
+    }
+
+    // Load immediately
+    loadETFData();
+
+    // Refresh every 30 seconds
+    setInterval(loadETFData, 30000);
+  </script>
+</body>
+</html>

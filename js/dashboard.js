@@ -1,27 +1,45 @@
-const API_URL = "/api/etf";
+const tableBody = document.querySelector('#nseTable tbody');
+const refreshBtn = document.getElementById('refreshBtn');
 
-async function loadData() {
-  checkAuth();
-  const tbody = document.getElementById("etfBody");
-  tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+// Fetch NSE data from serverless function
+async function fetchNSEData() {
+  tableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
 
   try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
+    const response = await fetch('/api/nse-data');
 
-    tbody.innerHTML = "";
-    data.data.forEach(etf => {
-      const cls = etf.change >= 0 ? "green" : "red";
-      tbody.innerHTML += `
-        <tr>
-          <td>${etf.symbol}</td>
-          <td>${etf.lastPrice}</td>
-          <td class="${cls}">${etf.change}</td>
-          <td class="${cls}">${etf.pChange}%</td>
-        </tr>
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const data = await response.json();
+
+    if (!data || data.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = '';
+    data.forEach(stock => {
+      const price = Number(stock.price || stock.last_price || 0);
+      const change = Number(stock.change || 0);
+      const percentChange = Number(stock.percent_change || 0);
+
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td>${stock.symbol || ''}</td>
+        <td>₹${price.toLocaleString('en-IN')}</td>
+        <td class="${change >= 0 ? 'gain' : 'loss'}">${change.toFixed(2)}</td>
+        <td class="${percentChange >= 0 ? 'gain' : 'loss'}">${percentChange.toFixed(2)}%</td>
       `;
+      tableBody.appendChild(row);
     });
-  } catch {
-    tbody.innerHTML = "<tr><td colspan='4'>Data unavailable</td></tr>";
+  } catch (err) {
+    tableBody.innerHTML = `<tr><td colspan="4">Error: ${err.message}</td></tr>`;
   }
 }
+
+// Initial load
+fetchNSEData();
+
+// Refresh button
+refreshBtn.addEventListener('click', fetchNSEData);

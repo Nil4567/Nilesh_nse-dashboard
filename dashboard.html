@@ -1,48 +1,78 @@
-// Simulated fetch function - replace with your real API call
-function fetchDashboardData() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        totalAmount: 12000.50,
-        advancePaid: 5000.00,
-        pendingReceived: 2000.00,
-        totalReceived: 7000.50,
-        pendingBalance: 5000.00
-      });
-    }, 500); // simulate API delay
-  });
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSE Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #007bff; color: #fff; }
+    button { padding: 10px 20px; margin-bottom: 15px; cursor: pointer; background: #007bff; color: #fff; border: none; border-radius: 5px; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h1>NSE Dashboard</h1>
+  <button id="refreshBtn">Refresh Data</button>
+  <table id="nseTable">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Price</th>
+        <th>Change</th>
+        <th>% Change</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- NSE data will load here -->
+    </tbody>
+  </table>
 
-// Update dashboard values
-async function updateDashboard() {
-  const btn = document.getElementById("refreshBtn");
-  btn.disabled = true;
-  btn.textContent = "Refreshing...";
+  <script>
+    const tableBody = document.querySelector('#nseTable tbody');
+    const refreshBtn = document.getElementById('refreshBtn');
 
-  try {
-    const data = await fetchDashboardData();
+    async function fetchNSEData() {
+      tableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
 
-    document.getElementById("totalAmount").textContent = "₹" + data.totalAmount.toFixed(2);
-    document.getElementById("advancePaid").textContent = "₹" + data.advancePaid.toFixed(2);
-    document.getElementById("pendingReceived").textContent = "₹" + data.pendingReceived.toFixed(2);
-    document.getElementById("totalReceived").textContent = "₹" + data.totalReceived.toFixed(2);
-    document.getElementById("pendingBalance").textContent = "₹" + data.pendingBalance.toFixed(2);
+      try {
+        // ✅ Use the exact deployed API
+        const response = await fetch('https://nilesh-nse-dashboard.vercel.app/api/nse-data');
 
-  } catch (err) {
-    alert("Failed to fetch data.");
-    console.error(err);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Refresh Data";
-  }
-}
+        if (!response.ok) throw new Error('Network response was not ok');
 
-// Refresh button click
-document.getElementById("refreshBtn").addEventListener("click", updateDashboard);
+        const data = await response.json();
 
-// Optional: Add share button functionality (dummy)
-document.querySelectorAll(".share-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    alert("Share feature coming soon!");
-  });
-});
+        if (!data || data.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
+          return;
+        }
+
+        tableBody.innerHTML = '';
+        data.forEach(stock => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${stock.symbol || ''}</td>
+            <td>${stock.price || ''}</td>
+            <td>${stock.change || ''}</td>
+            <td>${stock.percent_change || ''}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (error) {
+        tableBody.innerHTML = `<tr><td colspan="4">Error: ${error.message}</td></tr>`;
+      }
+    }
+
+    // Load data on page load
+    fetchNSEData();
+
+    // Refresh button click
+    refreshBtn.addEventListener('click', () => {
+      fetchNSEData();
+    });
+  </script>
+</body>
+</html>

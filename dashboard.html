@@ -1,29 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NSE Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #dashboard { margin-top: 20px; }
-    .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; width: 250px; }
-    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
-  </style>
-</head>
-<body>
+// Simulated fetch function - replace with your real API call
+function fetchDashboardData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        totalAmount: 12000.50,
+        advancePaid: 5000.00,
+        pendingReceived: 2000.00,
+        totalReceived: 7000.50,
+        pendingBalance: 5000.00
+      });
+    }, 500); // simulate API delay
+  });
+}
 
-  <h1>NSE Dashboard</h1>
-  <button id="refreshBtn">Refresh Data</button>
+document.getElementById("refreshBtn").addEventListener("click", async () => {
+  // Optional: disable button while fetching
+  const btn = document.getElementById("refreshBtn");
+  btn.disabled = true;
+  btn.textContent = "Refreshing...";
 
-  <div id="dashboard">
-    <div class="card">Total Amount: ₹<span id="totalAmount">0.00</span></div>
-    <div class="card">Advance Paid: ₹<span id="advancePaid">0.00</span></div>
-    <div class="card">Pending Received: ₹<span id="pendingReceived">0.00</span></div>
-    <div class="card">Total Received: ₹<span id="totalReceived">0.00</span></div>
-    <div class="card">Pending Balance: ₹<span id="pendingBalance">0.00</span></div>
-  </div>
+  try {
+    const data = await fetchDashboardData();
 
-  <script src="dashboard.js"></script>
-</body>
-</html>
+    document.getElementById("totalAmount").textContent = data.totalAmount.toFixed(2);
+    document.getElementById("advancePaid").textContent = data.advancePaid.toFixed(2);
+    document.getElementById("pendingReceived").textContent = data.pendingReceived.toFixed(2);
+    document.getElementById("totalReceived").textContent = data.totalReceived.toFixed(2);
+    document.getElementById("pendingBalance").textContent = data.pendingBalance.toFixed(2);
+
+  } catch (err) {
+    alert("Failed to fetch data.");
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Refresh Data";
+  }
+});

@@ -1,9 +1,9 @@
-// nse.js
+// api/nse.js
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
   try {
-    // Step 1: Hit NSE homepage to get session cookies
+    // Step 1: hit NSE homepage to get cookies
     const homepage = await fetch('https://www.nseindia.com', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     });
     const cookies = homepage.headers.get('set-cookie') || '';
 
-    // Step 2: Fetch ETF data from NSE API
+    // Step 2: fetch ETF data
     const response = await fetch('https://www.nseindia.com/api/etf', {
       headers: {
         'Accept': 'application/json, text/plain, */*',
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
     const rawData = await response.json();
 
-    // Step 3: Process data to format prices and gains/losses
+    // Step 3: format data
     const formattedData = rawData.data.map(etf => ({
       symbol: etf.symbol,
       name: etf.name,
@@ -40,7 +40,6 @@ export default async function handler(req, res) {
       gainLossColor: Number(etf.change) >= 0 ? 'green' : 'red',
     }));
 
-    // Step 4: Send JSON response
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(200).json(formattedData);

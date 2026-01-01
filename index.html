@@ -4,25 +4,127 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NSE Dashboard</title>
-  <link rel="stylesheet" href="CSS/style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #007bff;
+      color: #fff;
+      position: sticky;
+      top: 0;
+    }
+    tr:hover {
+      background: #f1f1f1;
+    }
+    .gain {
+      color: green;
+      font-weight: bold;
+    }
+    .loss {
+      color: red;
+      font-weight: bold;
+    }
+    .refresh-btn {
+      margin-bottom: 15px;
+      display: block;
+      padding: 10px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .refresh-btn:hover {
+      background: #0056b3;
+    }
+  </style>
 </head>
 <body>
+
   <h1>NSE Dashboard</h1>
-  <button id="refreshBtn">Refresh Data</button>
+  <button class="refresh-btn" onclick="fetchData()">Refresh Data</button>
+
   <table id="nseTable">
     <thead>
       <tr>
         <th>Symbol</th>
-        <th>Price (₹)</th>
+        <th>Last Price</th>
         <th>Change</th>
         <th>% Change</th>
+        <th>Volume</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Data will be dynamically loaded here -->
+      <!-- Data rows will be inserted here -->
     </tbody>
   </table>
 
-  <script src="js/dashboard.js"></script>
+  <script>
+    async function fetchData() {
+      const tbody = document.querySelector('#nseTable tbody');
+      tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+
+      try {
+        // NSE API (ETF / Stocks)
+        const res = await fetch('https://www.nseindia.com/api/etf');
+        const data = await res.json();
+        
+        // Clear table
+        tbody.innerHTML = '';
+
+        data.data.forEach(item => {
+          const row = document.createElement('tr');
+
+          const symbol = item.symbol || '';
+          const lastPrice = item.lastPrice ? formatINR(item.lastPrice) : '-';
+          const change = item.change ? Number(item.change).toFixed(2) : '-';
+          const percentChange = item.pChange ? Number(item.pChange).toFixed(2) + '%' : '-';
+          const volume = item.tradedQuantity ? Number(item.tradedQuantity).toLocaleString() : '-';
+
+          const changeClass = change >= 0 ? 'gain' : 'loss';
+
+          row.innerHTML = `
+            <td>${symbol}</td>
+            <td>${lastPrice}</td>
+            <td class="${changeClass}">${change}</td>
+            <td class="${changeClass}">${percentChange}</td>
+            <td>${volume}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5">Error loading data</td></tr>`;
+        console.error(err);
+      }
+    }
+
+    function formatINR(amount) {
+      return '₹' + Number(amount).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    }
+
+    // Auto-load data
+    fetchData();
+  </script>
+
 </body>
 </html>

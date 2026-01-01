@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>NSE Dashboard Login</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSE Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #dashboard { margin-top: 20px; }
+    .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; width: 250px; }
+    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+  </style>
 </head>
-<body class="center">
-  <div class="card">
-    <h2>Login</h2>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <p id="error"></p>
+<body>
+
+  <h1>NSE Dashboard</h1>
+  <button id="refreshBtn">Refresh Data</button>
+
+  <div id="dashboard">
+    <div class="card">Total Amount: ₹<span id="totalAmount">0.00</span></div>
+    <div class="card">Advance Paid: ₹<span id="advancePaid">0.00</span></div>
+    <div class="card">Pending Received: ₹<span id="pendingReceived">0.00</span></div>
+    <div class="card">Total Received: ₹<span id="totalReceived">0.00</span></div>
+    <div class="card">Pending Balance: ₹<span id="pendingBalance">0.00</span></div>
   </div>
-  <script src="js/login.js"></script>
+
+  <script src="dashboard.js"></script>
 </body>
 </html>

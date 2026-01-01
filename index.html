@@ -1,67 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>NSE ETF Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background: #007bff; color: white; }
-    .gain { color: green; }
-    .loss { color: red; }
-    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; cursor: pointer; margin-bottom: 10px; }
-    button:hover { background: #0056b3; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSE Dashboard</title>
+  <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
-  <h1>NSE ETF Dashboard</h1>
+  <h1>NSE Dashboard</h1>
   <button id="refreshBtn">Refresh Data</button>
-  <table id="etfTable">
+  <table id="nseTable">
     <thead>
       <tr>
-        <th>Ticker</th>
-        <th>Last Price (₹)</th>
+        <th>Symbol</th>
+        <th>Price (₹)</th>
         <th>Change</th>
         <th>% Change</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+      <!-- Data will be dynamically loaded here -->
+    </tbody>
   </table>
 
-  <script>
-    const tbody = document.querySelector("#etfTable tbody");
-    const refreshBtn = document.getElementById("refreshBtn");
-
-    async function loadData() {
-      tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
-      try {
-        const response = await fetch("/api/nse-data");
-        const data = await response.json();
-
-        tbody.innerHTML = "";
-        data.forEach(item => {
-          const price = Number(item.close || item.last_price);
-          const change = Number(item.change || 0);
-          const percentChange = Number(item.percent_change || 0);
-          const row = `
-            <tr>
-              <td>${item.symbol || item.ticker}</td>
-              <td>₹${price.toLocaleString("en-IN")}</td>
-              <td class="${change >= 0 ? "gain" : "loss"}">${change.toFixed(2)}</td>
-              <td class="${percentChange >= 0 ? "gain" : "loss"}">${percentChange.toFixed(2)}%</td>
-            </tr>
-          `;
-          tbody.insertAdjacentHTML("beforeend", row);
-        });
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="4">Error: ${err.message}</td></tr>`;
-      }
-    }
-
-    refreshBtn.addEventListener("click", loadData);
-
-    loadData();
-  </script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

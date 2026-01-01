@@ -1,78 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NSE Dashboard</title>
+  <meta charset="UTF-8" />
+  <title>NSE ETF Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; background: #fff; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background: #007bff; color: #fff; }
-    button { padding: 10px 20px; margin-bottom: 15px; cursor: pointer; background: #007bff; color: #fff; border: none; border-radius: 5px; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #007bff; color: white; }
+    .gain { color: green; }
+    .loss { color: red; }
+    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; cursor: pointer; margin-bottom: 10px; }
     button:hover { background: #0056b3; }
   </style>
 </head>
 <body>
-  <h1>NSE Dashboard</h1>
+  <h1>NSE ETF Dashboard</h1>
   <button id="refreshBtn">Refresh Data</button>
-  <table id="nseTable">
+  <table id="etfTable">
     <thead>
       <tr>
-        <th>Symbol</th>
-        <th>Price</th>
+        <th>Ticker</th>
+        <th>Last Price (₹)</th>
         <th>Change</th>
         <th>% Change</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- NSE data will load here -->
-    </tbody>
+    <tbody></tbody>
   </table>
 
   <script>
-    const tableBody = document.querySelector('#nseTable tbody');
-    const refreshBtn = document.getElementById('refreshBtn');
+    const tbody = document.querySelector("#etfTable tbody");
+    const refreshBtn = document.getElementById("refreshBtn");
 
-    // Function to fetch NSE data from your serverless function
-    async function fetchNSEData() {
-      tableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
-
+    async function loadData() {
+      tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
       try {
-        // Replace with your actual serverless function URL
-        const response = await fetch('/api/nse-data'); 
-        if (!response.ok) throw new Error('Network response was not ok');
-
+        const response = await fetch("/api/nse-data");
         const data = await response.json();
 
-        if (data.length === 0) {
-          tableBody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
-          return;
-        }
-
-        tableBody.innerHTML = '';
-        data.forEach(stock => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${stock.symbol}</td>
-            <td>${stock.price}</td>
-            <td>${stock.change}</td>
-            <td>${stock.percent_change}</td>
+        tbody.innerHTML = "";
+        data.forEach(item => {
+          const price = Number(item.close || item.last_price);
+          const change = Number(item.change || 0);
+          const percentChange = Number(item.percent_change || 0);
+          const row = `
+            <tr>
+              <td>${item.symbol || item.ticker}</td>
+              <td>₹${price.toLocaleString("en-IN")}</td>
+              <td class="${change >= 0 ? "gain" : "loss"}">${change.toFixed(2)}</td>
+              <td class="${percentChange >= 0 ? "gain" : "loss"}">${percentChange.toFixed(2)}%</td>
+            </tr>
           `;
-          tableBody.appendChild(row);
+          tbody.insertAdjacentHTML("beforeend", row);
         });
-      } catch (error) {
-        tableBody.innerHTML = `<tr><td colspan="4">Error: ${error.message}</td></tr>`;
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4">Error: ${err.message}</td></tr>`;
       }
     }
 
-    // Load data on page load
-    fetchNSEData();
+    refreshBtn.addEventListener("click", loadData);
 
-    // Refresh button click
-    refreshBtn.addEventListener('click', () => {
-      fetchNSEData();
-    });
+    loadData();
   </script>
 </body>
 </html>

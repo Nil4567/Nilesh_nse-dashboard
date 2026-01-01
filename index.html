@@ -3,85 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NSE Dashboard</title>
+  <title>NSE ETF Dashboard</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
-    h1 { text-align: center; margin-bottom: 20px; color: #333; }
-    .refresh-btn { display: block; margin: 0 auto 15px auto; padding: 10px 25px; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-    .refresh-btn:hover { background: #0056b3; }
-    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 15px rgba(0,0,0,0.1); font-size: 14px; }
-    th, td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #ddd; }
-    th { background: #007bff; color: #fff; position: sticky; top: 0; z-index: 1; }
-    tr:hover { background: #f1f1f1; }
-    .gain { color: green; font-weight: bold; }
-    .loss { color: red; font-weight: bold; }
-    @media (max-width: 768px) { th, td { padding: 8px 5px; font-size: 12px; } .refresh-btn { padding: 8px 15px; font-size: 14px; } }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
   </style>
 </head>
 <body>
+  <h1>NSE ETF Dashboard</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Name</th>
+        <th>Last Price</th>
+        <th>Change</th>
+        <th>% Change</th>
+      </tr>
+    </thead>
+    <tbody id="etfTableBody"></tbody>
+  </table>
 
-<h1>NSE Dashboard</h1>
-<button class="refresh-btn" onclick="fetchData()">Refresh Data</button>
+  <script>
+    async function loadETFData() {
+      try {
+        const response = await fetch('/api/nse');
+        const data = await response.json();
 
-<table id="nseTable">
-  <thead>
-    <tr>
-      <th>Symbol</th>
-      <th>Last Price</th>
-      <th>Change</th>
-      <th>% Change</th>
-      <th>Volume</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td colspan="5">Loading...</td></tr>
-  </tbody>
-</table>
+        const tableBody = document.getElementById('etfTableBody');
+        tableBody.innerHTML = '';
 
-<script>
-async function fetchData() {
-  const tbody = document.querySelector('#nseTable tbody');
-  tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+        data.forEach(etf => {
+          const row = document.createElement('tr');
 
-  try {
-    const res = await fetch('/api/nse');
-    const data = await res.json();
+          row.innerHTML = `
+            <td>${etf.symbol}</td>
+            <td>${etf.name}</td>
+            <td style="color:${etf.gainLossColor}">${etf.lastPrice}</td>
+            <td style="color:${etf.gainLossColor}">${etf.change}</td>
+            <td style="color:${etf.gainLossColor}">${etf.pChange}%</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Error loading ETF data:', err);
+      }
+    }
 
-    tbody.innerHTML = '';
-    data.data.forEach(item => {
-      const row = document.createElement('tr');
+    // Load immediately
+    loadETFData();
 
-      const symbol = item.symbol || '-';
-      const lastPrice = item.lastPrice ? formatINR(item.lastPrice) : '-';
-      const change = item.change ? Number(item.change).toFixed(2) : '-';
-      const percentChange = item.pChange ? Number(item.pChange).toFixed(2) + '%' : '-';
-      const volume = item.tradedQuantity ? Number(item.tradedQuantity).toLocaleString('en-IN') : '-';
-
-      const changeClass = change >= 0 ? 'gain' : 'loss';
-
-      row.innerHTML = `
-        <td>${symbol}</td>
-        <td>${lastPrice}</td>
-        <td class="${changeClass}">${change}</td>
-        <td class="${changeClass}">${percentChange}</td>
-        <td>${volume}</td>
-      `;
-      tbody.appendChild(row);
-    });
-
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
-  }
-}
-
-function formatINR(amount) {
-  return '₹' + Number(amount).toLocaleString('en-IN', { maximumFractionDigits: 2 });
-}
-
-// Auto-load
-fetchData();
-</script>
-
+    // Refresh every 30 seconds
+    setInterval(loadETFData, 30000);
+  </script>
 </body>
 </html>
